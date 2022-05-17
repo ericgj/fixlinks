@@ -1,3 +1,5 @@
+# Note: largely based on https://stackoverflow.com/a/48403427
+
 from argparse import ArgumentParser
 from glob import glob
 import logging
@@ -9,7 +11,7 @@ import sys
 import pythoncom
 from win32com.shell import shell, shellcon
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
 def update_shortcut(filename, target_from, target_to):
@@ -53,8 +55,14 @@ def main(raw):
     cmd.add_argument("--root", default=os.getcwd(), help="root search directory")
     cmd.add_argument("--pattern", default="**\\*.lnk", help="search pattern (glob)")
     cmd.add_argument("-t", "--target-replace", default=None, help="link target replacement text")
+    cmd.add_argument("--debug", action="store_true", help="debug logging on")
+    cmd.add_argument("--no-debug", action="store_false", help="debug logging off")
     cmd.add_argument("target", help="link target search text") 
+    cmd.set_defaults(debug=False)
     args = cmd.parse_args(raw)
+    
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
     
     for f in search_links(args.root, args.pattern):
         logger.debug(f"Found link {f}")
